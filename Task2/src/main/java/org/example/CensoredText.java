@@ -29,7 +29,7 @@ public class CensoredText {
 
         for (int i = 0, wordsLength = words.length; i < wordsLength; i++) {
             if ((words[i].toLowerCase().contains(word)) && !(isAlphabetic(words[i]))) {
-                words[i] = changeWord(words[i].toLowerCase().split(word), words[i]);
+                words[i] = changeWord(words[i].toLowerCase().split(word));
             }
 
             stringBuilder.append(words[i]).append(' ');
@@ -38,7 +38,7 @@ public class CensoredText {
         return stringBuilder.toString().trim();
     }
 
-    private static String changeWord(String[] parts, String word) {
+    private static String changeWord(String[] parts) {
         if (parts.length == 0) {
             return PUT_INSTEAD;
         }
