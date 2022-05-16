@@ -14,12 +14,14 @@ public class MyStringTest
     {
         assertEquals(MyStringClass.capitalize("somebody"), "Somebody");
         assertEquals(MyStringClass.capitalize("4morning"), "4Morning");
+        assertEquals(MyStringClass.capitalize("..."), "...");
     }
 
     @Test
     public void testIsPalindrome()
     {
         assertTrue(MyStringClass.isPalindrome("someemos"));
+        assertTrue(MyStringClass.isPalindrome("somemos"));
         assertFalse(MyStringClass.isPalindrome("morning"));
     }
 
@@ -28,5 +30,6 @@ public class MyStringTest
     {
         assertEquals(MyStringClass.alphabetize("Ilya Fedorov 22"), "FIadeloorvy");
         assertEquals(MyStringClass.alphabetize("Papa Roach"), "PRaaachop");
+        assertEquals(MyStringClass.alphabetize("dbaec"), "abcde");
     }
 }

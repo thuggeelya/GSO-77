@@ -21,22 +21,26 @@ public class CalculateTemperatureByInput {
             throw new NullPointerException(INPUT_IS_NOT_VALID_MESSAGE);
         }
 
+        return calculate(defineInputParams(in));
+    }
+
+    private static TemperatureInput defineInputParams(String in) {
         char[] inChars = in.trim().toCharArray();
 
         char fromScale;
         char toScale;
         int endIndexTemperature = 0;
-        boolean firstDigitAppeared = true;
+        boolean firstDigitWasFound = false;
         StringBuilder temperature = new StringBuilder();
 
         for (int i = 0; i < inChars.length; i++) {
             char c = inChars[i];
 
             if (Character.isDigit(c)) {
-                temperature.append((firstDigitAppeared) ? printMinusIfNegative(in, i) : "");
+                temperature.append((!firstDigitWasFound) ? printMinusIfNegative(in, i) : "");
                 temperature.append(c);
                 endIndexTemperature = i;
-                firstDigitAppeared = false;
+                firstDigitWasFound = true;
             } else if (!temperature.isEmpty()) {
                 break;
             }
@@ -44,13 +48,11 @@ public class CalculateTemperatureByInput {
 
         fromScale = getFromScaleVal(endIndexTemperature, inChars);
         toScale = getToScaleVal(inChars, fromScale);
+        throwExceptionIfScaleIsNotValid(fromScale, toScale);
 
-        if ((fromScale == INPUT_IS_NOT_VALID_SIGN) || (toScale == INPUT_IS_NOT_VALID_SIGN)) {
-            throw new InputMismatchException(INPUT_IS_NOT_VALID_MESSAGE);
-        }
-
-        return calculate(new TemperatureInput(String.valueOf(fromScale), String.valueOf(toScale), Integer.parseInt(temperature.toString())));
+        return new TemperatureInput(String.valueOf(fromScale), String.valueOf(toScale), Integer.parseInt(temperature.toString()));
     }
+
 
     private static String printMinusIfNegative(String in, int firstDigitIndex) {
         return (in.substring(0, firstDigitIndex).contains("-")) ? "-" : "";
@@ -74,6 +76,12 @@ public class CalculateTemperatureByInput {
         }
 
         return INPUT_IS_NOT_VALID_SIGN;
+    }
+
+    private static void throwExceptionIfScaleIsNotValid(char c1, char c2) {
+        if ((c1 == INPUT_IS_NOT_VALID_SIGN) || (c2 == INPUT_IS_NOT_VALID_SIGN)) {
+            throw new InputMismatchException(INPUT_IS_NOT_VALID_MESSAGE);
+        }
     }
 
     private static String calculate(TemperatureInput input) {

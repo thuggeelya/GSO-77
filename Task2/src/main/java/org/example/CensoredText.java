@@ -28,8 +28,8 @@ public class CensoredText {
         String word = this.wordToHide.toLowerCase();
 
         for (int i = 0, wordsLength = words.length; i < wordsLength; i++) {
-            if (words[i].toLowerCase().contains(word)) {
-                words[i] = changeWord(words[i].toLowerCase().split(word));
+            if ((words[i].toLowerCase().contains(word)) && !(isAlphabetic(words[i]))) {
+                words[i] = changeWord(words[i].toLowerCase().split(word), words[i]);
             }
 
             stringBuilder.append(words[i]).append(' ');
@@ -38,7 +38,7 @@ public class CensoredText {
         return stringBuilder.toString().trim();
     }
 
-    private static String changeWord(String[] parts) {
+    private static String changeWord(String[] parts, String word) {
         if (parts.length == 0) {
             return PUT_INSTEAD;
         }
@@ -46,5 +46,15 @@ public class CensoredText {
         StringBuilder sb = new StringBuilder().append(parts[0]).append(PUT_INSTEAD);
 
         return (parts.length > 1) ? sb.append(parts[1]).toString() : sb.toString();
+    }
+
+    private static boolean isAlphabetic(String p) {
+        for (char pChar : p.toCharArray()) {
+            if (!Character.isAlphabetic(pChar)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

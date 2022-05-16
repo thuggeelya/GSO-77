@@ -1,6 +1,6 @@
 package org.example;
 
-import static org.example.task_4.CalculateTemperatureByInput.getDoubleValue;
+import static org.example.CalculateTemperatureByInput.getDoubleValue;
 
 public class Kelvin extends Convert {
 
