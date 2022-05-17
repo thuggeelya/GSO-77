@@ -7,9 +7,7 @@ import java.util.InputMismatchException;
 public class CalculateTemperatureByInput {
 
     private final static String SCALE_CHARS = "cfkCFK";
-    private final static String NO_SUCH_SCALE_MESSAGE = "No such scale! Try 'C', 'K' or 'F'..";
     private final static String INPUT_IS_NOT_VALID_MESSAGE = "Input is not valid!";
-    private final static char INPUT_IS_NOT_VALID_SIGN = '!';
 
     /**
      *
@@ -21,12 +19,11 @@ public class CalculateTemperatureByInput {
             throw new NullPointerException(INPUT_IS_NOT_VALID_MESSAGE);
         }
 
-        return calculate(defineInputParams(in));
+        return defineInputParams(in).toString();
     }
 
     private static TemperatureInput defineInputParams(String in) {
         char[] inChars = in.trim().toCharArray();
-
         char fromScale;
         char toScale;
         int endIndexTemperature = 0;
@@ -48,58 +45,55 @@ public class CalculateTemperatureByInput {
 
         fromScale = getFromScaleVal(endIndexTemperature, inChars);
         toScale = getToScaleVal(inChars, fromScale);
-        throwExceptionIfScaleIsNotValid(fromScale, toScale);
 
         return new TemperatureInput(String.valueOf(fromScale), String.valueOf(toScale), Integer.parseInt(temperature.toString()));
     }
-
 
     private static String printMinusIfNegative(String in, int firstDigitIndex) {
         return (in.substring(0, firstDigitIndex).contains("-")) ? "-" : "";
     }
 
     private static char getFromScaleVal(int endIndexTemperature, char[] inChars) {
+        char c;
+
         for (int i = endIndexTemperature; i < inChars.length; i++) {
-            if (SCALE_CHARS.indexOf(inChars[i]) != -1) {
-                return inChars[i];
+
+            c = inChars[i];
+
+            if (Character.isAlphabetic(c)) {
+                if (SCALE_CHARS.indexOf(c) != -1) {
+                    return c;
+                } else {
+                    break;
+                }
             }
         }
 
-        return INPUT_IS_NOT_VALID_SIGN;
+        throw new InputMismatchException(INPUT_IS_NOT_VALID_MESSAGE);
     }
 
     private static char getToScaleVal(char[] inChars, char fromScale) {
-        for (int i = inChars.length - 1; i > 0; i--) {
-            if (SCALE_CHARS.indexOf(inChars[i]) != -1 || inChars[i] != fromScale) {
-                return inChars[i];
+        char c;
+        char toScale = '!';
+        int countLettersBetweenScales = -1;
+
+        for (int i = inChars.length - 1; i > new String(inChars).indexOf(fromScale); i--) {
+
+            c = inChars[i];
+
+            if (Character.isAlphabetic(c)) {
+                if (SCALE_CHARS.indexOf(c) != -1 || c != fromScale) {
+                    toScale = c;
+                    countLettersBetweenScales++;
+                }
             }
         }
 
-        return INPUT_IS_NOT_VALID_SIGN;
-    }
-
-    private static void throwExceptionIfScaleIsNotValid(char c1, char c2) {
-        if ((c1 == INPUT_IS_NOT_VALID_SIGN) || (c2 == INPUT_IS_NOT_VALID_SIGN)) {
+        if ((toScale == '!') || (countLettersBetweenScales != 0)) {
             throw new InputMismatchException(INPUT_IS_NOT_VALID_MESSAGE);
+        } else {
+            return toScale;
         }
-    }
-
-    private static String calculate(TemperatureInput input) {
-        Convert convert;
-
-        switch (input.getFromScale().toUpperCase()) {
-            case "K", "К" -> convert = new Kelvin(input.getTemperature());
-            case "F" -> convert = new Fahrenheit(input.getTemperature());
-            case "C", "С" -> convert = new Celsius(input.getTemperature());
-            default -> throw new InputMismatchException(NO_SUCH_SCALE_MESSAGE);
-        }
-
-        return switch (input.getToScale().toUpperCase()) {
-            case "K", "К" -> convert.convertKelvin();
-            case "F" -> convert.convertFahrenheit();
-            case "C", "С" -> convert.convertCelsius();
-            default -> throw new InputMismatchException(NO_SUCH_SCALE_MESSAGE);
-        };
     }
 
     public static Double getDoubleValue(double value) {
