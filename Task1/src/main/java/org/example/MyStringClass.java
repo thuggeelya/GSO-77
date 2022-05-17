@@ -21,7 +21,7 @@ public class MyStringClass {
             }
         }
 
-        return word.trim().replaceFirst(startLetter, startLetter.toUpperCase());
+        return word.replaceFirst(startLetter, startLetter.toUpperCase());
     }
 
     public static boolean isPalindrome(String word) {
