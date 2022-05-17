@@ -1,9 +1,10 @@
 package org.example;
 
+import java.util.stream.IntStream;
+
 public class CensoredText {
 
     private static final String PUT_INSTEAD = "censored";
-
     private final String wordToHide;
 
     public CensoredText(String wordToHide) {
@@ -15,46 +16,58 @@ public class CensoredText {
     }
 
     public String censor(String text) {
-        if ((text == null) || (text.isBlank())) {
+        if (isBlank(text) || isBlank(this.wordToHide) || !(text.toLowerCase().contains(this.wordToHide.toLowerCase()))) {
             return text;
         }
 
-        return replaceIgnoreCase(text);
+        return replace(text);
     }
 
-    private String replaceIgnoreCase(String text) {
-        StringBuilder stringBuilder = new StringBuilder();
-        String[] words = text.split(" ");
-        String word = this.wordToHide.toLowerCase();
+    private boolean isBlank(String s) {
+        return (s == null) || (s.isBlank());
+    }
 
-        for (int i = 0, wordsLength = words.length; i < wordsLength; i++) {
-            if ((words[i].toLowerCase().contains(word)) && !(isAlphabetic(words[i]))) {
-                words[i] = changeWord(words[i].toLowerCase().split(word));
+    private String replace(String text) {
+        StringBuilder result = new StringBuilder();
+        String lowerWordToHide = this.wordToHide.toLowerCase();
+        String lowerText = text.toLowerCase();
+        int tempIndex;
+        int incNumber;
+
+        for (int i = 0; i < lowerText.length();) {
+            incNumber = 1;
+
+            if ( ((i == 0) || (!(isAbcOrDgt(lowerText.charAt(i - 1)))) ) && (lowerText.charAt(i) == lowerWordToHide.charAt(0))) {
+                tempIndex = i;
+
+                // ищем посимвольное совпадение
+                while (lowerText.charAt(tempIndex) == lowerWordToHide.charAt(tempIndex - i)) {
+                    if (tempIndex == i + lowerWordToHide.length() - 1) {
+                        if ((tempIndex == lowerText.length() - 1) || !(isAbcOrDgt(lowerText.charAt(tempIndex + 1)))) {
+                            result.append(PUT_INSTEAD);
+                            incNumber = lowerWordToHide.length();
+                        } else {
+                            IntStream.range(i, tempIndex + 1).forEach(n -> result.append(text.charAt(n)));
+                        }
+
+                        break;
+                    }
+
+                    tempIndex++;
+                }
+            } else {
+                // иначе записываем текущий символ и идем дальше
+                result.append(text.charAt(i));
             }
 
-            stringBuilder.append(words[i]).append(' ');
+            // + 1 или + wordToHide.length()
+            i += incNumber;
         }
 
-        return stringBuilder.toString().trim();
+        return result.toString();
     }
 
-    private static String changeWord(String[] parts) {
-        if (parts.length == 0) {
-            return PUT_INSTEAD;
-        }
-
-        StringBuilder sb = new StringBuilder().append(parts[0]).append(PUT_INSTEAD);
-
-        return (parts.length > 1) ? sb.append(parts[1]).toString() : sb.toString();
-    }
-
-    private static boolean isAlphabetic(String p) {
-        for (char pChar : p.toCharArray()) {
-            if (!Character.isAlphabetic(pChar)) {
-                return false;
-            }
-        }
-
-        return true;
+    private static boolean isAbcOrDgt(char p) {
+        return Character.isAlphabetic(p) || Character.isDigit(p);
     }
 }
