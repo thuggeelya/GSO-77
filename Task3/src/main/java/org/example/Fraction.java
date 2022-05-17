@@ -1,18 +1,24 @@
 package org.example;
 
+import java.util.Objects;
+
 public class Fraction implements Comparable<Fraction> {
 
-    private int numerator;
-    private int denominator;
+    private final int numerator;
+    private final int denominator;
+    private final int simpleNumerator;
+    private final int simpleDenominator;
 
-    public Fraction(int numerator, int denominator) throws Exception {
+    public Fraction(int numerator, int denominator)  {
         this.numerator = numerator;
 
         if (denominator == 0) {
-            throw new Exception("Denominator cannot be null!");
+            zeroDenominatorException();
         }
 
         this.denominator = denominator;
+        this.simpleNumerator = simplify(numerator, denominator)[0];
+        this.simpleDenominator = simplify(numerator, denominator)[1];
     }
 
     public int getNumerator() {
@@ -23,17 +29,25 @@ public class Fraction implements Comparable<Fraction> {
         return denominator;
     }
 
-    private Fraction simplify(Fraction fraction) throws Exception {
-        if (fraction.getNumerator() == 1) {
-            return fraction;
+    public int getSimpleNumerator() {
+        return simpleNumerator;
+    }
+
+    public int getSimpleDenominator() {
+        return simpleDenominator;
+    }
+
+    private int[] simplify(int numerator, int denominator) {
+        if (numerator == 1) {
+            return new int[]{numerator, denominator};
         }
 
-        int gcd = calculateCommonDivider(fraction.getNumerator(), fraction.getDenominator());
-        return new Fraction(fraction.getNumerator() / gcd, fraction.getDenominator() / gcd);
+        int gcd = calculateCommonDivider(numerator, denominator);
+        return new int[]{numerator / gcd, denominator / gcd};
     }
 
     private int calculateCommonDenominator(Fraction fraction) {
-        return Math.abs(this.getDenominator() * fraction.getDenominator()) / calculateCommonDivider(this.getDenominator(), fraction.getDenominator());
+        return Math.abs(Math.multiplyExact(this.getDenominator(), fraction.getDenominator()) / calculateCommonDivider(this.getDenominator(), fraction.getDenominator()));
     }
 
     private int calculateCommonDivider(int a, int b) {
@@ -44,52 +58,52 @@ public class Fraction implements Comparable<Fraction> {
         return calculateCommonDivider(b, a % b);
     }
 
-    public String add(Fraction fraction) throws Exception {
+    public String add(Fraction fraction) {
         return (resultFractionForSumOrSub(this, fraction, '+').getNumerator() != 0)
-                ? resultFractionForSumOrSub(this, fraction, '+').toString()
+                ? resultFractionForSumOrSub(this, fraction, '+').toSimpleString()
                 : "0";
     }
 
-    public String multiply(Fraction fraction) throws Exception {
-        Fraction temp = simplify(new Fraction(this.getNumerator() * fraction.getNumerator(), this.getDenominator() * fraction.getDenominator()));
-        return temp.getNumerator() != 0 ? temp.toString() : "0";
+    public String multiply(Fraction fraction) {
+        Fraction temp = new Fraction(Math.multiplyExact(this.getSimpleNumerator(), fraction.getSimpleNumerator()), Math.multiplyExact(this.getSimpleDenominator(), fraction.getSimpleDenominator()));
+        return temp.getNumerator() != 0 ? temp.toSimpleString() : "0";
     }
 
-    public String subtract(Fraction fraction) throws Exception {
+    public String subtract(Fraction fraction) {
         return resultFractionForSumOrSub(this, fraction, '-').getNumerator() != 0
-                ? resultFractionForSumOrSub(this, fraction, '-').toString()
+                ? resultFractionForSumOrSub(this, fraction, '-').toSimpleString()
                 : "0";
     }
 
-    public String divide(Fraction fraction) throws Exception {
-        var f1 = simplify(this);
-        var f2 = simplify(fraction);
-
-        if (fraction.getNumerator() == 0) {
-            throw new Exception("Denominator cannot be null!");
+    public String divide(Fraction fraction){
+        if (fraction.getSimpleNumerator() == 0) {
+            zeroDenominatorException();
         }
 
-        Fraction temp = simplify(new Fraction(this.getNumerator() * fraction.getDenominator(), this.getDenominator() * fraction.getNumerator()));
+        Fraction temp = new Fraction(Math.multiplyExact(this.getSimpleNumerator(), fraction.getSimpleDenominator()), Math.multiplyExact(this.getSimpleDenominator(), fraction.getSimpleNumerator()));
 
-        if (f1.compareTo(f2) == 0) {
+        if (this.compareTo(fraction) == 0) {
             return "1";
         }
 
-        return temp.toString();
+        return temp.toSimpleString();
     }
 
-    private Fraction resultFractionForSumOrSub(Fraction f1, Fraction f2, char action) throws Exception {
-        f1 = simplify(f1);
-        f2 = simplify(f2);
+    private Fraction resultFractionForSumOrSub(Fraction f1, Fraction f2, char action) {
         int commonDenominator = calculateCommonDenominator(f2);
-        int aNumerator = f1.getNumerator() * (commonDenominator / f1.getDenominator());
-        int bNumerator = f2.getNumerator() * (commonDenominator / f2.getDenominator());
+
+        int aNumerator = Math.multiplyExact(f1.getSimpleNumerator(), (commonDenominator / f1.getSimpleDenominator()));
+        int bNumerator = Math.multiplyExact(f2.getSimpleNumerator(), (commonDenominator / f2.getSimpleDenominator()));
 
         return switch (action) {
-            case '-' -> simplify(new Fraction(aNumerator - bNumerator, commonDenominator));
-            case '+' -> simplify(new Fraction(aNumerator + bNumerator, commonDenominator));
-            default -> throw new Exception("Unexpected value: " + action);
+            case '-' -> new Fraction(Math.subtractExact(aNumerator, bNumerator), commonDenominator);
+            case '+' -> new Fraction(Math.addExact(aNumerator, bNumerator), commonDenominator);
+            default -> throw new RuntimeException("Unexpected value: " + action);
         };
+    }
+
+    private void zeroDenominatorException() {
+        throw new IllegalArgumentException("Denominator cannot be zero!");
     }
 
     @Override
@@ -102,38 +116,29 @@ public class Fraction implements Comparable<Fraction> {
             return false;
         }
 
-        Fraction f;
+        Fraction f = this;
+        Fraction fraction = (Fraction) o;
+        return (f.numerator == fraction.numerator) && (f.denominator == fraction.denominator);
+    }
 
-        try {
-            f = simplify(this);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        Fraction fraction;
-
-        try {
-            fraction = simplify((Fraction) o);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        return f.numerator == fraction.numerator && f.denominator == fraction.denominator;
+    @Override
+    public int hashCode() {
+        return Objects.hash(simpleNumerator, simpleDenominator);
     }
 
     @Override
     public int compareTo(Fraction o) {
-        return this.getDenominator() == o.getDenominator() ?
-                Integer.compare(this.getNumerator(), o.getNumerator()) :
-                Integer.compare(this.getDenominator(), o.getDenominator());
+        return this.getSimpleDenominator() == o.getSimpleDenominator() ?
+                Long.compare(this.getSimpleNumerator(), o.getSimpleNumerator()) :
+                Long.compare(this.getSimpleDenominator(), o.getSimpleDenominator());
     }
 
     @Override
     public String toString() {
-        try {
-            return simplify(this).numerator + "/" + simplify(this).denominator;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return this.numerator + "/" + this.denominator;
+    }
+
+    public String toSimpleString() {
+        return this.simpleNumerator + "/" + this.simpleDenominator;
     }
 }
