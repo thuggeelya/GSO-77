@@ -43,11 +43,13 @@ public class MyStringClass {
     }
 
     public static String alphabetize(String word) {
-        if (isBlank(makeLatin(word))) {
+        String latWord = makeLatin(word);
+
+        if (isBlank(latWord)) {
             return word;
         }
 
-        char[] wordChars = makeLatin(word).toCharArray();
+        char[] wordChars = latWord.toCharArray();
         Arrays.sort(wordChars);
         return new String(wordChars);
     }
