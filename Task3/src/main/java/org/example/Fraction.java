@@ -29,14 +29,6 @@ public class Fraction implements Comparable<Fraction> {
         return denominator;
     }
 
-    private int getSimpleNumerator() {
-        return simpleNumerator;
-    }
-
-    private int getSimpleDenominator() {
-        return simpleDenominator;
-    }
-
     private int[] simplify(int numerator, int denominator) {
         if (numerator == 1) {
             return new int[]{numerator, denominator};
@@ -63,7 +55,7 @@ public class Fraction implements Comparable<Fraction> {
     }
 
     public Fraction multiply(Fraction fraction) {
-        return new Fraction(Math.multiplyExact(this.getSimpleNumerator(), fraction.getSimpleNumerator()), Math.multiplyExact(this.getSimpleDenominator(), fraction.getSimpleDenominator()));
+        return new Fraction(Math.multiplyExact(this.simpleNumerator, fraction.simpleNumerator), Math.multiplyExact(this.simpleDenominator, fraction.simpleDenominator));
     }
 
     public Fraction subtract(Fraction fraction) {
@@ -71,14 +63,14 @@ public class Fraction implements Comparable<Fraction> {
     }
 
     public Fraction divide(Fraction fraction){
-        return new Fraction(Math.multiplyExact(this.getSimpleNumerator(), fraction.getSimpleDenominator()), Math.multiplyExact(this.getSimpleDenominator(), fraction.getSimpleNumerator()));
+        return new Fraction(Math.multiplyExact(this.simpleNumerator, fraction.simpleDenominator), Math.multiplyExact(this.simpleDenominator, fraction.simpleNumerator));
     }
 
     private Fraction resultFractionForSumOrSub(Fraction f1, Fraction f2, char action) {
         int commonDenominator = calculateCommonDenominator(f2);
 
-        int aNumerator = Math.multiplyExact(f1.getSimpleNumerator(), (commonDenominator / f1.getSimpleDenominator()));
-        int bNumerator = Math.multiplyExact(f2.getSimpleNumerator(), (commonDenominator / f2.getSimpleDenominator()));
+        int aNumerator = Math.multiplyExact(f1.simpleNumerator, (commonDenominator / f1.simpleDenominator));
+        int bNumerator = Math.multiplyExact(f2.simpleNumerator, (commonDenominator / f2.simpleDenominator));
 
         return switch (action) {
             case '-' -> new Fraction(Math.subtractExact(aNumerator, bNumerator), commonDenominator);
@@ -109,9 +101,9 @@ public class Fraction implements Comparable<Fraction> {
 
     @Override
     public int compareTo(Fraction o) {
-        return this.getSimpleDenominator() == o.getSimpleDenominator() ?
-                Long.compare(this.getSimpleNumerator(), o.getSimpleNumerator()) :
-                Long.compare(this.getSimpleDenominator(), o.getSimpleDenominator());
+        return this.simpleDenominator == o.simpleDenominator ?
+                Long.compare(this.simpleNumerator, o.simpleNumerator) :
+                Long.compare(this.simpleDenominator, o.simpleDenominator);
     }
 
     @Override
