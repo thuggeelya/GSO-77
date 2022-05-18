@@ -13,7 +13,7 @@ public class Fraction implements Comparable<Fraction> {
         this.numerator = numerator;
 
         if (denominator == 0) {
-            zeroDenominatorException();
+            throw new IllegalArgumentException("Denominator cannot be zero!");
         }
 
         this.denominator = denominator;
@@ -29,11 +29,11 @@ public class Fraction implements Comparable<Fraction> {
         return denominator;
     }
 
-    public int getSimpleNumerator() {
+    private int getSimpleNumerator() {
         return simpleNumerator;
     }
 
-    public int getSimpleDenominator() {
+    private int getSimpleDenominator() {
         return simpleDenominator;
     }
 
@@ -58,35 +58,20 @@ public class Fraction implements Comparable<Fraction> {
         return calculateCommonDivider(b, a % b);
     }
 
-    public String add(Fraction fraction) {
-        return (resultFractionForSumOrSub(this, fraction, '+').getNumerator() != 0)
-                ? resultFractionForSumOrSub(this, fraction, '+').toSimpleString()
-                : "0";
+    public Fraction add(Fraction fraction) {
+        return resultFractionForSumOrSub(this, fraction, '+');
     }
 
-    public String multiply(Fraction fraction) {
-        Fraction temp = new Fraction(Math.multiplyExact(this.getSimpleNumerator(), fraction.getSimpleNumerator()), Math.multiplyExact(this.getSimpleDenominator(), fraction.getSimpleDenominator()));
-        return temp.getNumerator() != 0 ? temp.toSimpleString() : "0";
+    public Fraction multiply(Fraction fraction) {
+        return new Fraction(Math.multiplyExact(this.getSimpleNumerator(), fraction.getSimpleNumerator()), Math.multiplyExact(this.getSimpleDenominator(), fraction.getSimpleDenominator()));
     }
 
-    public String subtract(Fraction fraction) {
-        return resultFractionForSumOrSub(this, fraction, '-').getNumerator() != 0
-                ? resultFractionForSumOrSub(this, fraction, '-').toSimpleString()
-                : "0";
+    public Fraction subtract(Fraction fraction) {
+        return resultFractionForSumOrSub(this, fraction, '-');
     }
 
-    public String divide(Fraction fraction){
-        if (fraction.getSimpleNumerator() == 0) {
-            zeroDenominatorException();
-        }
-
-        Fraction temp = new Fraction(Math.multiplyExact(this.getSimpleNumerator(), fraction.getSimpleDenominator()), Math.multiplyExact(this.getSimpleDenominator(), fraction.getSimpleNumerator()));
-
-        if (this.compareTo(fraction) == 0) {
-            return "1";
-        }
-
-        return temp.toSimpleString();
+    public Fraction divide(Fraction fraction){
+        return new Fraction(Math.multiplyExact(this.getSimpleNumerator(), fraction.getSimpleDenominator()), Math.multiplyExact(this.getSimpleDenominator(), fraction.getSimpleNumerator()));
     }
 
     private Fraction resultFractionForSumOrSub(Fraction f1, Fraction f2, char action) {
@@ -100,10 +85,6 @@ public class Fraction implements Comparable<Fraction> {
             case '+' -> new Fraction(Math.addExact(aNumerator, bNumerator), commonDenominator);
             default -> throw new RuntimeException("Unexpected value: " + action);
         };
-    }
-
-    private void zeroDenominatorException() {
-        throw new IllegalArgumentException("Denominator cannot be zero!");
     }
 
     @Override
@@ -123,7 +104,7 @@ public class Fraction implements Comparable<Fraction> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(numerator, denominator, simpleNumerator, simpleDenominator);
+        return Objects.hash(numerator, denominator);
     }
 
     @Override
@@ -135,10 +116,6 @@ public class Fraction implements Comparable<Fraction> {
 
     @Override
     public String toString() {
-        return this.numerator + "/" + this.denominator;
-    }
-
-    public String toSimpleString() {
-        return this.simpleNumerator + "/" + this.simpleDenominator;
+        return this.numerator == 0 ? "0" : (this.numerator == this.denominator) ? "1" : this.numerator + "/" + this.denominator;
     }
 }
