@@ -1,24 +1,16 @@
 package org.example;
 
-import java.util.Objects;
-
-import static org.example.CalculateTemperatureByInput.getDoubleValue;
-
 public final class Fahrenheit implements Convertable {
 
-    private final double temperature;
-
-    public Fahrenheit(double temperature) {
-        this.temperature = temperature;
-    }
+    public Fahrenheit() {}
 
     @Override
-    public double fromCelsius() {
+    public double fromCelsius(double temperature) {
         return getDoubleValue(1.8d * temperature + 32.0d);
     }
 
     @Override
-    public double toCelsius() {
+    public double toCelsius(double temperature) {
         return getDoubleValue((temperature - 32) / 1.8d);
     }
 
@@ -28,22 +20,16 @@ public final class Fahrenheit implements Convertable {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        Fahrenheit fahrenheit = (Fahrenheit) o;
-
-        return (Double.compare(fahrenheit.temperature, temperature) == 0);
+        return (o != null) && (getClass() == o.getClass());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(temperature);
+        return Fahrenheit.class.hashCode();
     }
 
     @Override
     public String toString() {
-        return temperature + "F";
+        return "F";
     }
 }

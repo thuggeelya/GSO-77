@@ -1,17 +1,17 @@
 package org.example;
 
-public final class Kelvin implements Convertable {
+public final class Celsius implements Convertable {
 
-    public Kelvin() {}
+    public Celsius() {}
 
     @Override
     public double fromCelsius(double temperature) {
-        return getDoubleValue(temperature + 273.15d);
+        return temperature;
     }
 
     @Override
     public double toCelsius(double temperature) {
-        return getDoubleValue(temperature - 273.15d);
+        return temperature;
     }
 
     @Override
@@ -25,11 +25,11 @@ public final class Kelvin implements Convertable {
 
     @Override
     public int hashCode() {
-        return Kelvin.class.hashCode();
+        return Celsius.class.hashCode();
     }
 
     @Override
     public String toString() {
-        return "K";
+        return "C";
     }
 }

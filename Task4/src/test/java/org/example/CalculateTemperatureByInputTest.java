@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.InputMismatchException;
 
-import static org.example.CalculateTemperatureByInput.analiseInput;
+import static org.example.ConvertTemperature.analiseInput;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 

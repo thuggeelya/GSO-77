@@ -1,14 +1,17 @@
 package org.example;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.InputMismatchException;
+import java.util.Map;
 
-public class CalculateTemperatureByInput {
+public class ConvertTemperature {
 
-    private final static String SCALE_CHARS = "cfkCFK";
+    private final static Map<String, Convertable> SCALE_MAP;
+
+    static {
+        SCALE_MAP = Map.of("C", new Celsius(), "F", new Fahrenheit(), "K", new Kelvin());
+    }
+
     private final static String INPUT_IS_NOT_VALID_MESSAGE = "Input is not valid!";
-    public final static String NO_SUCH_SCALE_MESSAGE = "No such scale! Try 'C', 'K' or 'F'..";
 
     /**
      *
@@ -20,8 +23,9 @@ public class CalculateTemperatureByInput {
             throw new NullPointerException(INPUT_IS_NOT_VALID_MESSAGE);
         }
 
-        TemperatureInput temperatureInput = defineInputParams(in);
-        return convert(temperatureInput) + temperatureInput.getToScale();
+        TemperatureInput params = defineInputParams(in);
+        return params.getToScale().fromCelsius(params.getFromScale().toCelsius(params.getTemperature()))
+                + params.getToScale().toString();
     }
 
     private static TemperatureInput defineInputParams(String in) {
@@ -48,7 +52,11 @@ public class CalculateTemperatureByInput {
         fromScale = getFromScaleVal(endIndexTemperature, inChars);
         toScale = getToScaleVal(inChars, fromScale);
 
-        return new TemperatureInput(String.valueOf(fromScale), String.valueOf(toScale), Integer.parseInt(temperature.toString()));
+        return new TemperatureInput(scaleOf(fromScale), scaleOf(toScale), Integer.parseInt(temperature.toString()));
+    }
+
+    private static Convertable scaleOf(char c) {
+        return SCALE_MAP.get(String.valueOf(c));
     }
 
     private static String printMinusIfNegative(String in, int firstDigitIndex) {
@@ -63,7 +71,7 @@ public class CalculateTemperatureByInput {
             c = inChars[i];
 
             if (Character.isAlphabetic(c)) {
-                if (SCALE_CHARS.indexOf(c) != -1) {
+                if (SCALE_MAP.containsKey(String.valueOf(c))) {
                     return c;
                 } else {
                     break;
@@ -84,7 +92,7 @@ public class CalculateTemperatureByInput {
             c = inChars[i];
 
             if (Character.isAlphabetic(c)) {
-                if (SCALE_CHARS.indexOf(c) != -1 || c != fromScale) {
+                if ((SCALE_MAP.containsKey(String.valueOf(c))) || (c != fromScale)) {
                     toScale = c;
                     countLettersBetweenScales++;
                 }
@@ -96,30 +104,5 @@ public class CalculateTemperatureByInput {
         } else {
             return toScale;
         }
-    }
-
-    private static double convert(TemperatureInput input) {
-        String toScale = input.getToScale();
-        double temperature = input.getTemperature();
-
-        return switch (input.getFromScale().toUpperCase()) {
-            case "K" -> calculate(new Kelvin(temperature).toCelsius(), toScale);
-            case "F" -> calculate(new Fahrenheit(temperature).toCelsius(), toScale);
-            case "C" -> calculate(temperature, toScale);
-            default -> throw new InputMismatchException(NO_SUCH_SCALE_MESSAGE);
-        };
-    }
-
-    private static double calculate(double celsius, String to) {
-        return switch (to.toUpperCase()) {
-            case "K" -> new Kelvin(celsius).fromCelsius();
-            case "F" -> new Fahrenheit(celsius).fromCelsius();
-            case "C" -> celsius;
-            default -> throw new InputMismatchException(NO_SUCH_SCALE_MESSAGE);
-        };
-    }
-
-    public static Double getDoubleValue(double value) {
-        return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 }

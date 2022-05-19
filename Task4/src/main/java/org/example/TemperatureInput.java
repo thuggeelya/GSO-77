@@ -4,21 +4,21 @@ import java.util.Objects;
 
 public final class TemperatureInput {
 
-    private final String fromScale;
-    private final String toScale;
+    private final Convertable fromScale;
+    private final Convertable toScale;
     private final int temperature;
 
-    public TemperatureInput(String fromScale, String toScale, int temperature) {
+    public TemperatureInput(Convertable fromScale, Convertable toScale, int temperature) {
         this.fromScale = fromScale;
         this.temperature = temperature;
         this.toScale = toScale;
     }
 
-    public String getFromScale() {
+    public Convertable getFromScale() {
         return fromScale;
     }
 
-    public String getToScale() {
+    public Convertable getToScale() {
         return toScale;
     }
 
